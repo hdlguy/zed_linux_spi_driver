@@ -2,7 +2,7 @@
 # This TCL script is intended to be called by gnu make as part of a build system for the Vivado compiler collection.
 # The first argument is the target file. The rest of the arguments are interpreted as input source files.
 if { $::argc > 1 } {
-    create_project -in_memory -part xc7a50tfgg484-1 proj
+    create_project -in_memory -part xc7z020clg400-1 proj
     # get the target file
     set target [lindex $argv 0]
     set target_type [file extension $target]
