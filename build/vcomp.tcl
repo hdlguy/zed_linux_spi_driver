@@ -3,6 +3,7 @@
 # The first argument is the target file. The rest of the arguments are interpreted as input source files.
 if { $::argc > 1 } {
     create_project -in_memory -part xc7z020clg400-1 proj
+    set_property default_lib work [current_project]
     # get the target file
     set target [lindex $argv 0]
     set target_type [file extension $target]

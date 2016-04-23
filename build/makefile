@@ -3,9 +3,9 @@
 # the tabs with spaces the makefile will not run.
 all: ./results/top.bin
 
-#cores: ../cores/c_counter_binary_0/c_counter_binary_0.dcp ../cores/clk_wiz_0/clk_wiz_0.dcp ../cores/dds_compiler_0/dds_compiler_0.dcp
+cores: ../source/spi_slave/spi_slave_mem/spi_slave_mem.dcp
 
-./results/top.bit: ../source/top.v ../source/top.xdc  ./results/system.dcp
+./results/top.bit: ../source/top.v ../source/top.xdc  ./results/system.dcp ../source/spi_slave/spi_slave.vhd ../source/spi_slave/spi_slave_mem/spi_slave_mem.dcp
 	vivado -nolog -nojournal -mode batch -notrace -source vcomp.tcl -tclargs $@ $^
 
 ./results/system.dcp: ../source/system.tcl
@@ -27,6 +27,7 @@ all: ./results/top.bin
 clean:
 	rm --force \
 	./results/system.dcp \
+	../source/spi_slave/spi_slave_mem/spi_slave_mem.dcp \
 	./results/top.mcs ./results/top.bit 
 
 

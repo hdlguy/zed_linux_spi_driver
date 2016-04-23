@@ -14,16 +14,17 @@ end spi_slave;
 
 architecture Behavioral of spi_slave is
 
-    --COMPONENT spi_slave_mem
-    --PORT (
-        --a : IN STD_LOGIC_VECTOR(6 DOWNTO 0);
-        --d : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
-        --clk : IN STD_LOGIC;
-        --we : IN STD_LOGIC;
-        --spo : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
-    --END COMPONENT;
-    --ATTRIBUTE SYN_BLACK_BOX : BOOLEAN;
-    --ATTRIBUTE SYN_BLACK_BOX OF spi_slave_mem : COMPONENT IS TRUE;
+    COMPONENT spi_slave_mem
+    PORT (
+        a : IN STD_LOGIC_VECTOR(6 DOWNTO 0);
+        d : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+        clk : IN STD_LOGIC;
+        we : IN STD_LOGIC;
+        spo : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
+    );
+    END COMPONENT;
+    ATTRIBUTE SYN_BLACK_BOX : BOOLEAN;
+    ATTRIBUTE SYN_BLACK_BOX OF spi_slave_mem : COMPONENT IS TRUE;
     
     --constant d_width : natural := 8;
     --constant a_width : natural := 8; -- really address width + 1 for the read/write bit.
@@ -132,7 +133,7 @@ begin
     sck_rise <= (not sck_qq) and sck_q;
 
     -- This is the 128x8 memory created with ip core tool.
-    mem_inst : entity work.spi_slave_mem PORT MAP (a=>mem_addr(6 downto 0), d=>mem_din, clk=>clk, we=>mem_we, spo=>mem_dout);
+    mem_inst : component spi_slave_mem PORT MAP (a=>mem_addr(6 downto 0), d=>mem_din, clk=>clk, we=>mem_we, spo=>mem_dout);
   
 end Behavioral;
 
