@@ -1,0 +1,12 @@
+# write values to mem 
+w 0 aaaaaaaa
+w 4 bbbbbbbb    
+w 8 cccccccc		
+w c dddddddd
+w 10 eeeeeeee
+#read them back
+r 0
+r 4
+r 8
+r c
+r 10

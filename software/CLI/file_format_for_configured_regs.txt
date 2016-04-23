@@ -1,0 +1,19 @@
+to write value to a register
+w/W register_value register_address
+for example, write hex value aaaaaaaa to address hex address 10:
+w 10, aaaaaaaa
+
+to read value from a register
+r/R register_address
+for example, to read the value from hex address 10:
+r a
+
+all value and address are hex (no leading 0X/0x or trailing H/h) and 32 bits
+leading and/or trailing white space(s) is/are allowed
+
+# is the comment line
+no comment is allowed in read or write line
+for example
+w 10, aaaaaaaa #write value aaaaaaaa to address 10
+r 10 #read value from address 10
+are not allowed.
