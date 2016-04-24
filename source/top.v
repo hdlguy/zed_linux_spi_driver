@@ -22,8 +22,9 @@ module top (
     inout   logic    FIXED_IO_ps_srstb
 );
 
-    logic    spi_slave_sck, spi_slave_mosi, spi_slave_miso;
-    logic    [0:0]spi_slave_ss_n;
+    logic   spi_slave_sck, spi_slave_mosi, spi_slave_miso;
+    logic   [0:0]   spi_slave_ss_n;
+    logic   axi_aclk;
 
     system system_i(
         .DDR_addr(DDR_addr),
@@ -47,6 +48,7 @@ module top (
         .FIXED_IO_ps_clk(FIXED_IO_ps_clk),
         .FIXED_IO_ps_porb(FIXED_IO_ps_porb),
         .FIXED_IO_ps_srstb(FIXED_IO_ps_srstb),
+        .axi_aclk(axi_aclk),
         .spi_rtl_io0_i(0),
         .spi_rtl_io0_o(spi_slave_mosi),
         .spi_rtl_io0_t(),

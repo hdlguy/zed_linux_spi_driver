@@ -159,6 +159,7 @@ proc create_root_design { parentCell } {
   set spi_rtl [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:spi_rtl:1.0 spi_rtl ]
 
   # Create ports
+  set axi_aclk [ create_bd_port -dir O -type clk axi_aclk ]
 
   # Create instance: axi_bram_ctrl_0, and set properties
   set axi_bram_ctrl_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.0 axi_bram_ctrl_0 ]
@@ -635,7 +636,7 @@ CONFIG.PCW_QSPI_GRP_SS1_IO {<Select>} \
 CONFIG.PCW_QSPI_PERIPHERAL_CLKSRC {IO PLL} \
 CONFIG.PCW_QSPI_PERIPHERAL_DIVISOR0 {5} \
 CONFIG.PCW_QSPI_PERIPHERAL_ENABLE {1} \
-CONFIG.PCW_QSPI_PERIPHERAL_FREQMHZ {200.000000} \
+CONFIG.PCW_QSPI_PERIPHERAL_FREQMHZ {200} \
 CONFIG.PCW_QSPI_QSPI_IO {MIO 1 .. 6} \
 CONFIG.PCW_SD0_GRP_CD_ENABLE {1} \
 CONFIG.PCW_SD0_GRP_CD_IO {MIO 46} \
@@ -1275,7 +1276,7 @@ CONFIG.PCW_WDT_WDT_IO.VALUE_SRC {DEFAULT} \
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
 
   # Create port connections
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins axi_bram_ctrl_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins axi_quad_spi_0/ext_spi_clk] [get_bd_pins axi_quad_spi_0/s_axi_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins rst_processing_system7_0_100M/slowest_sync_clk]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_ports axi_aclk] [get_bd_pins axi_bram_ctrl_0/s_axi_aclk] [get_bd_pins axi_interconnect_0/ACLK] [get_bd_pins axi_interconnect_0/M00_ACLK] [get_bd_pins axi_interconnect_0/M01_ACLK] [get_bd_pins axi_interconnect_0/S00_ACLK] [get_bd_pins axi_quad_spi_0/ext_spi_clk] [get_bd_pins axi_quad_spi_0/s_axi_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins rst_processing_system7_0_100M/slowest_sync_clk]
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins rst_processing_system7_0_100M/ext_reset_in]
   connect_bd_net -net rst_processing_system7_0_100M_peripheral_aresetn [get_bd_pins axi_bram_ctrl_0/s_axi_aresetn] [get_bd_pins axi_interconnect_0/ARESETN] [get_bd_pins axi_interconnect_0/M00_ARESETN] [get_bd_pins axi_interconnect_0/M01_ARESETN] [get_bd_pins axi_interconnect_0/S00_ARESETN] [get_bd_pins axi_quad_spi_0/s_axi_aresetn] [get_bd_pins rst_processing_system7_0_100M/peripheral_aresetn]
 
@@ -1288,6 +1289,7 @@ CONFIG.PCW_WDT_WDT_IO.VALUE_SRC {DEFAULT} \
    guistr: "# # String gsaved with Nlview 6.5.12  2016-01-29 bk=1.3547 VDI=39 GEI=35 GUI=JA:1.6
 #  -string -flagsOSRD
 preplace port DDR -pg 1 -y -250 -defaultsOSRD
+preplace port axi_aclk -pg 1 -y -410 -defaultsOSRD
 preplace port FIXED_IO -pg 1 -y -230 -defaultsOSRD
 preplace port spi_rtl -pg 1 -y 50 -defaultsOSRD
 preplace inst axi_bram_ctrl_0_bram -pg 1 -lvl 4 -y -110 -defaultsOSRD
@@ -1301,11 +1303,11 @@ preplace netloc processing_system7_0_DDR 1 1 4 NJ -250 NJ -250 NJ -250 NJ
 preplace netloc axi_bram_ctrl_0_BRAM_PORTA 1 3 1 NJ
 preplace netloc processing_system7_0_FCLK_RESET0_N 1 0 2 30 10 430
 preplace netloc rst_processing_system7_0_100M_peripheral_aresetn 1 1 2 450 -160 750
-preplace netloc S00_AXI_1 1 1 1 430
 preplace netloc processing_system7_0_FIXED_IO 1 1 4 NJ -230 NJ -230 NJ -230 NJ
+preplace netloc S00_AXI_1 1 1 1 430
 preplace netloc axi_interconnect_0_M00_AXI 1 2 1 760
 preplace netloc axi_interconnect_0_M01_AXI 1 2 1 760
-preplace netloc processing_system7_0_FCLK_CLK0 1 0 3 20 0 440 -170 770
+preplace netloc processing_system7_0_FCLK_CLK0 1 0 5 20 0 440 -170 770 -410 NJ -410 N
 levelinfo -pg 1 0 230 600 900 1140 1270 -top -450 -bot 520
 ",
 }
