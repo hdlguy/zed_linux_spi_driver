@@ -2,7 +2,7 @@
 file delete -force proj.xpr *.os *.jou *.log proj.srcs proj.cache proj.runs
 #
 create_project -force proj 
-set_property board_part em.avnet.com:microzed_7020:part0:1.0 [current_project]
+set_property board_part em.avnet.com:microzed_7020:part0:1.1 [current_project]
 set_property target_language VHDL [current_project]
 set_property default_lib work [current_project]
 load_features ipintegrator
@@ -20,7 +20,7 @@ generate_target {synthesis implementation} [get_files ./proj.srcs/sources_1/bd/s
 
 # Read in the hdl source.
 read_vhdl [glob ../source/spi_slave/spi_slave.vhd]
-read_vhdl [glob ../source/top.vhd]
+read_verilog -sv  [glob ../source/top.v]
 
 read_xdc ../source/top.xdc
 

@@ -1,0 +1,8 @@
+image : {
+        [bootloader]uzed_fsbl.elf
+//        proto1_fpga_top.bit
+        u-boot.elf
+//        [load=0x2a00000]zynq-zed.dtb
+//        [load=0x2000000]uramdisk.image.gz
+//        [load=0x3000000]uImage.bin   // currently bootgen requires a file extension. this is just a renamed uImage
+}
