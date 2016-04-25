@@ -24,7 +24,8 @@ uint32_t check_fgpa_segment(uint8_t* pcie_addr,uint32_t segment_offset,uint32_t 
         write_reg(pcie_addr,segment_offset+i,1<<j);
         if(read_reg(pcie_addr,segment_offset+i)!=1<<j)
         {
-           printf("ERR ACCESS FPGA_VIR_ADDR[0x%lX+0x%X+0x%X]=0x%08X\n",(uint64_t)pcie_addr,segment_offset,i,read_reg(pcie_addr,segment_offset+i));
+           //printf("ERR ACCESS FPGA_VIR_ADDR[0x%lX+0x%X+0x%X]=0x%08X\n",(uint64_t)pcie_addr,segment_offset,i,read_reg(pcie_addr,segment_offset+i));
+           printf("ERR ACCESS FPGA_VIR_ADDR[0x%X+0x%X+0x%X]=0x%08X\n",(uint32_t)pcie_addr,segment_offset,i,read_reg(pcie_addr,segment_offset+i));
            err_cnt++;
         }
      }
@@ -34,7 +35,8 @@ uint32_t check_fgpa_segment(uint8_t* pcie_addr,uint32_t segment_offset,uint32_t 
         write_reg(pcie_addr,segment_offset+i,~(1<<j));
         if(read_reg(pcie_addr,segment_offset+i)!=~(1<<j))
         {
-           printf("ERR ACCESS FPGA VIR ADDR[0x%lX+0x%X+0x%X]=0x%08X\n",(uint64_t)pcie_addr,segment_offset,i,read_reg(pcie_addr,segment_offset+i));
+           //printf("ERR ACCESS FPGA VIR ADDR[0x%lX+0x%X+0x%X]=0x%08X\n",(uint64_t)pcie_addr,segment_offset,i,read_reg(pcie_addr,segment_offset+i));
+           printf("ERR ACCESS FPGA VIR ADDR[0x%X+0x%X+0x%X]=0x%08X\n",(uint32_t)pcie_addr,segment_offset,i,read_reg(pcie_addr,segment_offset+i));
            err_cnt++;
         }
      }

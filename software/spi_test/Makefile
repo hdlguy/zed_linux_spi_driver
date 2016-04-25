@@ -2,9 +2,9 @@ ALL_EXE = spi_test
 all: $(ALL_EXE) 
 
 CC=gcc
-CFLAGS=-I. -I../include  -I../API -I../hw
+CFLAGS=-I. -I../include  -I../API -I../hw -Wall
 
-DEPS = Makefile
+DEPS = Makefile ../hw/proto2_hw.h
 
 PUBLIC_LIBS = ../API/utils.o ../API/mem-io.o
 LIB_FILES =

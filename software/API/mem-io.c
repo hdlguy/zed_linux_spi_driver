@@ -20,8 +20,9 @@ void write_reg(uint8_t* vir_addr,uint32_t offset,uint32_t value)
 //   DEBUG("post write:   *%p=0x%08x\n\n",vir_addr+offset,*((uint32_t*)(vir_addr+offset)));
 }
 
-uint32_t read_reg(uint8_t* vir_addr,uint32_t offset)
+uint32_t read_reg(uint8_t* vir_addr, uint32_t offset)
 {
+//DEBUG("read vir_addr=%x, offset=%x, %x\n",(uint32_t)vir_addr, offset, (uint32_t)(vir_addr+offset));
    return *((uint32_t*)(vir_addr+offset));
 }
 
@@ -47,7 +48,8 @@ void* phy_addr_2_vir_addr(off_t phy_addr,size_t size)
       }
       else
       {
-          DEBUG("phy_addr 0x%lX mapped to 0x%lX with size=0x%x bytes\n",phy_addr,(uint64_t)vir_addr,(uint32_t)size);
+          //DEBUG("phy_addr 0x%lX mapped to 0x%lX with size=0x%x bytes\n",phy_addr,(uint64_t)vir_addr,(uint32_t)size);
+          DEBUG("phy_addr 0x%X mapped to 0x%X with size=0x%x bytes\n",(uint32_t)phy_addr,(uint32_t)vir_addr,(uint32_t)size);
       }
    }
    return vir_addr;
