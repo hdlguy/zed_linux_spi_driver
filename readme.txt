@@ -1,4 +1,4 @@
-This project demonstrates the use of the Xilinx bare-metal SPI drivers under Ubuntu linux.
+This project demonstrates the use of the bare-metal SPI drivers under Ubuntu linux on Xilinx Zynq processors.
 
 A hardware project for the MicroZed board is provided.  A simple user-side driver is provided as an example.
 
