@@ -9,6 +9,7 @@
 #include "mem-io.h"
 #include "utils.h"
 #include "proto2_hw.h"
+#include "xspi_l.h"
 
 // This function does a walking ones, walking zeros test on a region of address space.
 uint32_t check_fgpa_segment(uint8_t* pcie_addr,uint32_t segment_offset,uint32_t segment_size)
@@ -45,9 +46,32 @@ uint32_t check_fgpa_segment(uint8_t* pcie_addr,uint32_t segment_offset,uint32_t 
    return err_cnt;
 }
 
-void test_ram_spi_write(uint8_t address, uint8_t data)
+void test_ram_spi_write(void* pcie_addr, uint8_t address, uint8_t data)
 {
-    
+    // let's reset the spi controller
+    write_reg(pcie_addr, TEST_SPI+XSP_SRR_OFFSET, XSP_SRR_RESET_MASK);
+    // set up the SPI Control Register.
+    write_reg(pcie_addr, TEST_SPI+XSP_CR_OFFSET, 
+        XSP_CR_MANUAL_SS_MASK	  | // manual SS control
+        XSP_CR_RXFIFO_RESET_MASK  | // reset rx fifo
+        XSP_CR_TXFIFO_RESET_MASK  | // reset tx fifo
+        XSP_CR_MASTER_MODE_MASK   | // master mode
+        XSP_CR_ENABLE_MASK);        // controller enabled
+    // program the slave select register, SSR, to enable slave zero.
+    write_reg(pcie_addr, TEST_SPI+XSP_SSR_OFFSET, 0xfffffffe);
+    // write the address and data
+    uint32_t spi_wr_val = 
+        0x8000 |              // write bit
+        ((address&0x7f)<<8) | // 7 bit address
+        data;                 // 8 bit data
+    write_reg(pcie_addr, TEST_SPI+XSP_DTR_OFFSET,spi_wr_val );
+    // wait for the transaction to complete
+    uint32_t spi_sr_val;
+    do{
+        spi_sr_val = read_reg(pcie_addr, TEST_SPI+XSP_SR_OFFSET);
+    } while( (spi_sr_val & XSP_SR_TX_FULL_MASK) || (spi_sr_val & XSP_SR_RX_EMPTY_MASK) );
+    // disable slave select
+    write_reg(pcie_addr, TEST_SPI+XSP_SSR_OFFSET, 0xffffffff);
 }
 
 
@@ -76,21 +100,22 @@ int main(int argc,char** argv)
     //fprintf(stdout,"FPGA ID: 0x%08X\n",read_reg(pcie_addr,FPGA_ID));
     //fprintf(stdout,"VERSION: 0x%08X\n",read_reg(pcie_addr,FPGA_VERSION));
 
-    printf("%u err for checking FPGA segment 0x%08X\n",check_fgpa_segment(pcie_addr,TEST_BRAM_OFFSET,TEST_BRAM_SIZE),TEST_BRAM_OFFSET);
+    //printf("%u err for checking FPGA segment 0x%08X\n",check_fgpa_segment(pcie_addr,TEST_BRAM_OFFSET,TEST_BRAM_SIZE),TEST_BRAM_OFFSET);
 
-    fprintf(stdout,"SPI    SRR: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x40));
-    fprintf(stdout,"SPI  SPICR: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x60));
-    fprintf(stdout,"SPI  SPISR: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x64));
-    fprintf(stdout,"SPI    DTR: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x68));
-    fprintf(stdout,"SPI SPISSR: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x70));
-    fprintf(stdout,"SPI TXOCCU: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x74));
-    fprintf(stdout,"SPI RXOCCU: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x78));
-    fprintf(stdout,"SPI  DGIER: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x1C));
-    fprintf(stdout,"SPI  IPISR: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x20));
-    fprintf(stdout,"SPI  IPIER: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x28));
-    //fprintf(stdout,"SPI    DRR: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x6C));
+    //fprintf(stdout,"SPI    SRR: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x40));
+    //fprintf(stdout,"SPI  SPICR: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x60));
+    //fprintf(stdout,"SPI  SPISR: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x64));
+    //fprintf(stdout,"SPI    DTR: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x68));
+    //fprintf(stdout,"SPI SPISSR: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x70));
+    //fprintf(stdout,"SPI TXOCCU: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x74));
+    //fprintf(stdout,"SPI RXOCCU: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x78));
+    //fprintf(stdout,"SPI  DGIER: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x1C));
+    //fprintf(stdout,"SPI  IPISR: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x20));
+    //fprintf(stdout,"SPI  IPIER: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x28));
 
-    test_ram_spi_write(0x12, 0xab);
+    //fprintf(stdout,"SPI    DRR: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x6C)); // this one crashes the program
+
+    test_ram_spi_write(pcie_addr, 0x12, 0xab);
 
     munmap(pcie_addr,pcie_bar0_size);
 
