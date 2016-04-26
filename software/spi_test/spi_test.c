@@ -46,7 +46,7 @@ uint32_t check_fgpa_segment(uint8_t* pcie_addr,uint32_t segment_offset,uint32_t 
    return err_cnt;
 }
 
-void test_ram_spi_write(void* pcie_addr, uint8_t address, uint8_t data)
+uint8_t spi_mem_access(void* pcie_addr, uint8_t write_access, uint8_t address, uint8_t data)
 {
     // let's reset the spi controller
     write_reg(pcie_addr, TEST_SPI+XSP_SRR_OFFSET, XSP_SRR_RESET_MASK);
@@ -60,8 +60,10 @@ void test_ram_spi_write(void* pcie_addr, uint8_t address, uint8_t data)
     // program the slave select register, SSR, to enable slave zero.
     write_reg(pcie_addr, TEST_SPI+XSP_SSR_OFFSET, 0xfffffffe);
     // write the address and data
+    uint32_t rw_bit;
+    if (write_access) rw_bit = 0x8000; else rw_bit =0x0000;
     uint32_t spi_wr_val = 
-        0x8000 |              // write bit
+        rw_bit |              // write bit
         ((address&0x7f)<<8) | // 7 bit address
         data;                 // 8 bit data
     write_reg(pcie_addr, TEST_SPI+XSP_DTR_OFFSET,spi_wr_val );
@@ -72,6 +74,8 @@ void test_ram_spi_write(void* pcie_addr, uint8_t address, uint8_t data)
     } while( (spi_sr_val & XSP_SR_TX_FULL_MASK) || (spi_sr_val & XSP_SR_RX_EMPTY_MASK) );
     // disable slave select
     write_reg(pcie_addr, TEST_SPI+XSP_SSR_OFFSET, 0xffffffff);
+    // return receive value
+    return( 0xff & read_reg(pcie_addr, TEST_SPI+XSP_DRR_OFFSET) );
 }
 
 
@@ -81,13 +85,6 @@ int main(int argc,char** argv)
 
     uint32_t pcie_bar0_addr=BASE_ADDRESS;
     uint32_t pcie_bar0_size=PROTO_SIZE;
-/*	
-    if(sscanf(argv[1],"%x",&pcie_bar0_addr)!=1)
-    {
-      fprintf(stderr,"invalid PCIE BAR0 ADDR %s\n",argv[1]);
-      exit(-1);
-    }
-*/
 
     pcie_addr=phy_addr_2_vir_addr(pcie_bar0_addr,pcie_bar0_size);
     if(pcie_addr==NULL)
@@ -115,7 +112,15 @@ int main(int argc,char** argv)
 
     //fprintf(stdout,"SPI    DRR: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x6C)); // this one crashes the program
 
-    test_ram_spi_write(pcie_addr, 0x12, 0xab);
+    uint8_t i;
+    for(i=0; i<128; i++){
+        spi_mem_access(pcie_addr, 0x01, i, ~i ); // write access
+    }
+    uint8_t read_val;
+    for(i=0; i<128; i++){
+        read_val = spi_mem_access(pcie_addr, 0x00, i, 0x00); // read access
+        if (read_val != (0xff & ~i)) fprintf(stdout, "bad result: expected=0x%x, received=0x%x\n", (0xff & ~i), read_val);
+    }
 
     munmap(pcie_addr,pcie_bar0_size);
 
