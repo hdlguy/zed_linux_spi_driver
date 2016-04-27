@@ -54,6 +54,8 @@ uint16_t spi_scan_16bit(void* pcie_addr, uint32_t dev_offset, uint16_t data)
     // set up the SPI Control Register.
     write_reg(pcie_addr, dev_offset+XSP_CR_OFFSET, 
         XSP_CR_MANUAL_SS_MASK	  | // manual SS control
+        XSP_CR_CLK_PHASE_MASK	  | // set sck phase to idle high
+        XSP_CR_CLK_POLARITY_MASK  | // works with phase mask to make sck that idles high.
         XSP_CR_RXFIFO_RESET_MASK  | // reset rx fifo
         XSP_CR_TXFIFO_RESET_MASK  | // reset tx fifo
         XSP_CR_MASTER_MODE_MASK   | // master mode
@@ -75,35 +77,35 @@ uint16_t spi_scan_16bit(void* pcie_addr, uint32_t dev_offset, uint16_t data)
 
 uint32_t test_spi_write(void* pcie_addr, uint8_t address, uint8_t data)
 {
-    spi_scan_16bit(pcie_addr, TEST_SPI, 0x8000 | ((0x7f & address)<<8) | data);
+    spi_scan_16bit(pcie_addr, TEST_SPI, ((0x7f & address)<<8) | data);
     return( 1 );
 }
 
 uint8_t test_spi_read(void* pcie_addr, uint8_t address)
 {
-    return( 0xff & spi_scan_16bit(pcie_addr, TEST_SPI, (0x7f & address)<<8 ) );
+    return( 0xff & spi_scan_16bit(pcie_addr, TEST_SPI, 0x8000 | ((0x7f & address)<<8) ) );
 }
 
 uint32_t dac0_spi_write(void* pcie_addr, uint8_t address, uint8_t data)
 {
-    spi_scan_16bit(pcie_addr, DAC0_SPI, 0x8000 | ((0x7f & address)<<8) | data);
+    spi_scan_16bit(pcie_addr, DAC0_SPI, ((0x7f & address)<<8) | data);
     return( 1 );
 }
 
 uint8_t dac0_spi_read(void* pcie_addr, uint8_t address) 
 { 
-    return( 0xff & spi_scan_16bit(pcie_addr, DAC0_SPI, (0x7f & address)<<8 ) );
+    return( 0xff & spi_scan_16bit(pcie_addr, DAC0_SPI, 0x8000 | ((0x7f & address)<<8) ) );
 }
 
 uint32_t dac1_spi_write(void* pcie_addr, uint8_t address, uint8_t data)
 {
-    spi_scan_16bit(pcie_addr, DAC1_SPI, 0x8000 | ((0x7f & address)<<8) | data);
+    spi_scan_16bit(pcie_addr, DAC1_SPI, ((0x7f & address)<<8) | data);
     return( 1 );
 }
 
 uint8_t dac1_spi_read(void* pcie_addr, uint8_t address) 
 { 
-    return( 0xff & spi_scan_16bit(pcie_addr, DAC1_SPI, (0x7f & address)<<8 ) );
+    return( 0xff & spi_scan_16bit(pcie_addr, DAC1_SPI, 0x8000 | ((0x7f & address)<<8) ) );
 }
 
 
@@ -141,15 +143,23 @@ int main(int argc,char** argv)
     //fprintf(stdout,"SPI    DRR: 0x%08X\n",read_reg(pcie_addr,TEST_SPI + 0x6C)); // this one crashes the program
 
     uint8_t i;
-    for(i=0; i<128; i++){
-        //spi_scan_16bit(pcie_addr, 0x01, i, ~i ); // write access
-        test_spi_write(pcie_addr, i, ~i);
-    }
     uint8_t read_val;
+    fprintf(stdout,"Testing SPI\n\n ");
+    for(i=0; i<128; i++){
+        test_spi_write(pcie_addr, i, ~i);
+        dac0_spi_write(pcie_addr, i, ~i);
+        dac1_spi_write(pcie_addr, i, ~i);
+    }
+
     for(i=0; i<128; i++){
         read_val = test_spi_read(pcie_addr, i); // read access
         if (read_val != (0xff & ~i)) fprintf(stdout, "bad result: expected=0x%x, received=0x%x\n", (0xff & ~i), read_val);
+        read_val = dac0_spi_read(pcie_addr, i); // read access
+        if (read_val != (0xff & ~i)) fprintf(stdout, "bad result: expected=0x%x, received=0x%x\n", (0xff & ~i), read_val);
+        read_val = dac1_spi_read(pcie_addr, i); // read access
+        if (read_val != (0xff & ~i)) fprintf(stdout, "bad result: expected=0x%x, received=0x%x\n", (0xff & ~i), read_val);
     }
+
 
     munmap(pcie_addr,pcie_bar0_size);
 
