@@ -54,8 +54,11 @@ module top (
         .spi_rtl_io0_t(),
         .spi_rtl_io1_i(spi_slave_miso),
         .spi_rtl_io1_o(),
-        .spi_rtl_io1_t(),
-        .spi_rtl_ss_i(0),
+        .spi_rtl_io1_t(),        
+        .spi_rtl_sck_i(0),
+        .spi_rtl_sck_o(spi_slave_sck),
+        .spi_rtl_sck_t(),
+        .spi_rtl_ss_i(1),
         .spi_rtl_ss_o(spi_slave_ss_n),
         .spi_rtl_ss_t()
     );

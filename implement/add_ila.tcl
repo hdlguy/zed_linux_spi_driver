@@ -2,9 +2,9 @@
 # These are the signal we want to see in the ILA
 #
 #set ila_clock clk_BUFG
-set ila_clock axiclk
+set ila_clock axi_aclk
 #
-set_property mark_debug true [get_nets [list spi_miso spi_sck spi_mosi spi_ss]]
+#set_property mark_debug true [get_nets [list spi_miso spi_sck spi_mosi spi_ss]]
 #
 create_debug_core ila1 ila
 set_property C_DATA_DEPTH   4096 [get_debug_cores ila1]
