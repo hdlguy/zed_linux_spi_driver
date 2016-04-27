@@ -8,7 +8,7 @@ synth_ip -quiet [get_ips *]
 synth_design -top top
 write_checkpoint -force $outputDir/post_synth.dcp
 
-#source add_ila.tcl
+source add_ila.tcl
 
 opt_design
 
