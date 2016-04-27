@@ -30,6 +30,8 @@ We will try to use Doxygen compatible comments wherever possible.
 
 /// Transaction Width for these SPI interfaces is set to 16 bits.
 #define		TEST_SPI		    0x00010000
+#define		DAC0_SPI		    0x00020000
+#define		DAC1_SPI		    0x00030000
 
 /// XADC interface for temperature and supply voltages.
 //#define		XADC_IF 		    0x000D0000

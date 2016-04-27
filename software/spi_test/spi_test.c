@@ -46,36 +46,64 @@ uint32_t check_fgpa_segment(uint8_t* pcie_addr,uint32_t segment_offset,uint32_t 
    return err_cnt;
 }
 
-uint8_t spi_mem_access(void* pcie_addr, uint8_t write_access, uint8_t address, uint8_t data)
+// This function does a spi scan on a spi device that is 16 bits wide like the AD9129.
+uint16_t spi_scan_16bit(void* pcie_addr, uint32_t dev_offset, uint16_t data)
 {
     // let's reset the spi controller
-    write_reg(pcie_addr, TEST_SPI+XSP_SRR_OFFSET, XSP_SRR_RESET_MASK);
+    write_reg(pcie_addr, dev_offset+XSP_SRR_OFFSET, XSP_SRR_RESET_MASK);
     // set up the SPI Control Register.
-    write_reg(pcie_addr, TEST_SPI+XSP_CR_OFFSET, 
+    write_reg(pcie_addr, dev_offset+XSP_CR_OFFSET, 
         XSP_CR_MANUAL_SS_MASK	  | // manual SS control
         XSP_CR_RXFIFO_RESET_MASK  | // reset rx fifo
         XSP_CR_TXFIFO_RESET_MASK  | // reset tx fifo
         XSP_CR_MASTER_MODE_MASK   | // master mode
         XSP_CR_ENABLE_MASK);        // controller enabled
     // program the slave select register, SSR, to enable slave zero.
-    write_reg(pcie_addr, TEST_SPI+XSP_SSR_OFFSET, 0xfffffffe);
-    // write the address and data
-    uint32_t rw_bit;
-    if (write_access) rw_bit = 0x8000; else rw_bit =0x0000;
-    uint32_t spi_wr_val = 
-        rw_bit |              // write bit
-        ((address&0x7f)<<8) | // 7 bit address
-        data;                 // 8 bit data
-    write_reg(pcie_addr, TEST_SPI+XSP_DTR_OFFSET,spi_wr_val );
+    write_reg(pcie_addr, dev_offset+XSP_SSR_OFFSET, 0xfffffffe);
+    // do the scan
+    write_reg(pcie_addr, dev_offset+XSP_DTR_OFFSET,data);
     // wait for the transaction to complete
     uint32_t spi_sr_val;
     do{
-        spi_sr_val = read_reg(pcie_addr, TEST_SPI+XSP_SR_OFFSET);
+        spi_sr_val = read_reg(pcie_addr, dev_offset+XSP_SR_OFFSET);
     } while( (spi_sr_val & XSP_SR_TX_FULL_MASK) || (spi_sr_val & XSP_SR_RX_EMPTY_MASK) );
     // disable slave select
-    write_reg(pcie_addr, TEST_SPI+XSP_SSR_OFFSET, 0xffffffff);
+    write_reg(pcie_addr, dev_offset+XSP_SSR_OFFSET, 0xffffffff);
     // return receive value
-    return( 0xff & read_reg(pcie_addr, TEST_SPI+XSP_DRR_OFFSET) );
+    return( 0xffff & read_reg(pcie_addr, dev_offset+XSP_DRR_OFFSET) );
+}
+
+uint32_t test_spi_write(void* pcie_addr, uint8_t address, uint8_t data)
+{
+    spi_scan_16bit(pcie_addr, TEST_SPI, 0x8000 | ((0x7f & address)<<8) | data);
+    return( 1 );
+}
+
+uint8_t test_spi_read(void* pcie_addr, uint8_t address)
+{
+    return( 0xff & spi_scan_16bit(pcie_addr, TEST_SPI, (0x7f & address)<<8 ) );
+}
+
+uint32_t dac0_spi_write(void* pcie_addr, uint8_t address, uint8_t data)
+{
+    spi_scan_16bit(pcie_addr, DAC0_SPI, 0x8000 | ((0x7f & address)<<8) | data);
+    return( 1 );
+}
+
+uint8_t dac0_spi_read(void* pcie_addr, uint8_t address) 
+{ 
+    return( 0xff & spi_scan_16bit(pcie_addr, DAC0_SPI, (0x7f & address)<<8 ) );
+}
+
+uint32_t dac1_spi_write(void* pcie_addr, uint8_t address, uint8_t data)
+{
+    spi_scan_16bit(pcie_addr, DAC1_SPI, 0x8000 | ((0x7f & address)<<8) | data);
+    return( 1 );
+}
+
+uint8_t dac1_spi_read(void* pcie_addr, uint8_t address) 
+{ 
+    return( 0xff & spi_scan_16bit(pcie_addr, DAC1_SPI, (0x7f & address)<<8 ) );
 }
 
 
@@ -114,11 +142,12 @@ int main(int argc,char** argv)
 
     uint8_t i;
     for(i=0; i<128; i++){
-        spi_mem_access(pcie_addr, 0x01, i, ~i ); // write access
+        //spi_scan_16bit(pcie_addr, 0x01, i, ~i ); // write access
+        test_spi_write(pcie_addr, i, ~i);
     }
     uint8_t read_val;
     for(i=0; i<128; i++){
-        read_val = spi_mem_access(pcie_addr, 0x00, i, 0x00); // read access
+        read_val = test_spi_read(pcie_addr, i); // read access
         if (read_val != (0xff & ~i)) fprintf(stdout, "bad result: expected=0x%x, received=0x%x\n", (0xff & ~i), read_val);
     }
 
