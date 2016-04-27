@@ -8,7 +8,7 @@ synth_ip -quiet [get_ips *]
 synth_design -top top
 write_checkpoint -force $outputDir/post_synth.dcp
 
-#source add_ila.tcl
+source add_ila.tcl
 
 opt_design
 
@@ -25,7 +25,7 @@ report_drc -file $outputDir/post_imp_drc.rpt
 report_io -file $outputDir/post_imp_io.rpt
 xilinx::ultrafast::report_io_reg -verbose -file $outputDir/io_regs.rpt
 
-write_hwdef -force  -file /home/pedro/proj/vivado_zynq/sdk/top.hdf
+write_hwdef -force  -file ../sdk/top.hdf
 
 write_bitstream -verbose -force $outputDir/top.bit
 
