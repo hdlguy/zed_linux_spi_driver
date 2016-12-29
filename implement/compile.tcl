@@ -3,7 +3,13 @@ set outputDir ./results
 file mkdir $outputDir
 open_project proj.xpr
 
-synth_ip -quiet [get_ips *]
+set list1 [get_ips *];
+set list2 [get_ips system*];
+set list3 {};
+foreach core $list1 {if {[lsearch $list2 $core]==-1} { set list3 "$list3 $core" }};
+puts $list3;
+
+#synth_ip -quiet [get_ips *]
 
 synth_design -top top
 write_checkpoint -force $outputDir/post_synth.dcp
