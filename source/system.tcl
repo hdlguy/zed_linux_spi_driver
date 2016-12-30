@@ -163,7 +163,7 @@ proc create_root_design { parentCell } {
   # Create instance: axi_bram_ctrl_0, and set properties
   set axi_bram_ctrl_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.0 axi_bram_ctrl_0 ]
   set_property -dict [ list \
-CONFIG.ECC_TYPE {0} \
+CONFIG.ECC_TYPE {Hamming} \
 CONFIG.PROTOCOL {AXI4} \
 CONFIG.SINGLE_PORT_BRAM {1} \
  ] $axi_bram_ctrl_0
@@ -1295,6 +1295,9 @@ HDL_ATTRIBUTE.MARK_DEBUG {true} \
 HDL_ATTRIBUTE.DEBUG_IN_BD {true} \
  ] [get_bd_intf_nets S00_AXI_1]
   connect_bd_intf_net -intf_net axi_bram_ctrl_0_BRAM_PORTA [get_bd_intf_pins axi_bram_ctrl_0/BRAM_PORTA] [get_bd_intf_pins axi_bram_ctrl_0_bram/BRAM_PORTA]
+  set_property -dict [ list \
+HDL_ATTRIBUTE.DEBUG {true} \
+ ] [get_bd_intf_nets axi_bram_ctrl_0_BRAM_PORTA]
   connect_bd_intf_net -intf_net axi_interconnect_0_M00_AXI [get_bd_intf_pins axi_bram_ctrl_0/S_AXI] [get_bd_intf_pins axi_interconnect_0/M00_AXI]
   connect_bd_intf_net -intf_net axi_interconnect_0_M01_AXI [get_bd_intf_pins axi_interconnect_0/M01_AXI] [get_bd_intf_pins axi_quad_spi_0/AXI_LITE]
   connect_bd_intf_net -intf_net axi_quad_spi_0_SPI_0 [get_bd_intf_ports spi_rtl] [get_bd_intf_pins axi_quad_spi_0/SPI_0]
