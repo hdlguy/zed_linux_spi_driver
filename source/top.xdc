@@ -7,6 +7,27 @@ current_instance system_i/processing_system7_0/inst
 create_clock -period 10.000 -name clk_fpga_0 [get_pins {PS7_i/FCLKCLK[0]}]
 set_input_jitter clk_fpga_0 0.300
 
+// These only work on Zedboard not microzed
+#set_property IOSTANDARD LVCMOS25 [get_ports user_switch[*]]
+#set_property PACKAGE_PIN M15 [get_ports user_switch[7]]
+#set_property PACKAGE_PIN H17 [get_ports user_switch[6]]
+#set_property PACKAGE_PIN H18 [get_ports user_switch[5]]
+#set_property PACKAGE_PIN H19 [get_ports user_switch[4]]
+#set_property PACKAGE_PIN F21 [get_ports user_switch[3]]
+#set_property PACKAGE_PIN H22 [get_ports user_switch[2]]
+#set_property PACKAGE_PIN G22 [get_ports user_switch[1]]
+#set_property PACKAGE_PIN F22 [get_ports user_switch[0]]
+
+#set_property IOSTANDARD LVCMOS33 [get_ports user_led[*]]
+#set_property PACKAGE_PIN U14 [get_ports user_led[7]]
+#set_property PACKAGE_PIN U19 [get_ports user_led[6]]
+#set_property PACKAGE_PIN W22 [get_ports user_led[5]]
+#set_property PACKAGE_PIN V22 [get_ports user_led[4]]
+#set_property PACKAGE_PIN U21 [get_ports user_led[3]]
+#set_property PACKAGE_PIN U22 [get_ports user_led[2]]
+#set_property PACKAGE_PIN T21 [get_ports user_led[1]]
+#set_property PACKAGE_PIN T22 [get_ports user_led[0]]
+
 ############################################################################
 # I/O STANDARDS and Location Constraints                                   #
 ############################################################################
