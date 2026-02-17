@@ -1,0 +1,18 @@
+# cp ../sdk/fsbl_uzed/Release/fsbl_uzed.elf .
+# cp ../u-boot-xlnx/u-boot u-boot.elf
+# cp ../uramdisk.image.gz .
+#cp ../linux-xlnx/arch/arm/boot/uImage .
+# cp ../linux-xlnx/arch/arm/boot/dts/zynq-zed.dts .
+dtc -I dts -O dtb -o devicetree.dtb zynq-zed.dts
+
+#mkimage -A arm -T ramdisk -C gzip -d arm_ramdisk.image.gz uramdisk.image.gz
+
+#rm boot.bin
+bootgen -w on -image linux.bif -o i boot.bin
+# bootgen -image linux.bif -o i boot.mcs
+
+# This line splits out the bitfile in a .bin format so that u-boot or linux can load it dynamically.
+#bootgen -w -image linux.bif -split bin -o i boot.bin
+
+
+
