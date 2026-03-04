@@ -1,4 +1,6 @@
-image : {
+//arch = zynq; split = false; format = BIN
+the_image: 
+{
         [bootloader]uzed_fsbl.elf
 //        proto1_fpga_top.bit
         u-boot.elf
@@ -6,3 +8,4 @@ image : {
 //        [load=0x2000000]uramdisk.image.gz
 //        [load=0x3000000]uImage.bin   // currently bootgen requires a file extension. this is just a renamed uImage
 }
+
